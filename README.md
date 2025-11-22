@@ -270,14 +270,5 @@ Contributions are welcome! If you find any bugs or have suggestions:
 1. Made with ❤️ by [Erick HV](https://x.com/ErickHe52896723)
 2. Github: [ErickHdzV](https://github.com/ErickHdzV)
 
-## 🙏 Acknowledgments
-
-- CustomTkinter for the excellent GUI framework
-- Pillow for image processing
-- rembg for background removal capabilities
-- All contributors and users of the project
-
----
-
 ⭐ If you like this project, give it a star on GitHub!
 
