@@ -2,6 +2,18 @@
 
 Modern desktop application with a beautiful GUI for optimizing images and converting them to multiple formats (WebP, AVIF, PNG, JPG, ICO, SVG) with advanced compression, resizing, batch processing, background removal, and vectorization features.
 
+## 📸 Screenshots
+
+<div align="center">
+  <img src="screenshots/ImgPilot-light.png" alt="ImgPilot Light Theme" width="900"/>
+  <p><em>Main application window - Light theme</em></p>
+</div>
+
+<div align="center">
+  <img src="screenshots/ImgPilot-dark.png" alt="ImgPilot Dark Theme" width="900"/>
+  <p><em>Main application window - Dark theme</em></p>
+</div>
+
 ## ✨ Features
 
 ### Format Conversion
