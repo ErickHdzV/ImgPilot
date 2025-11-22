@@ -1,0 +1,9 @@
+Pillow>=10.0.0
+customtkinter>=5.0.0
+pillow-heif>=1.1.0  # Soporte para AVIF (compatible con Python 3.14)
+tkinterdnd2>=0.3.0  # Opcional: Soporte mejorado para drag & drop (opcional, funciona sin él)
+rembg>=2.0.0  # Remoción de background
+opencv-python>=4.8.0  # Procesamiento de imágenes para vectorización
+numpy>=1.24.0  # Dependencia de rembg y opencv
+svgwrite>=1.4.0  # Generación de archivos SVG
+

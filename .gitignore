@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Configuración local del usuario (presets)
+.imgpilot/
+
+# Logs
+*.log
+
+# Archivos temporales
+*.tmp
+*.temp
+~*
+
+# Archivos de sistema
+Thumbs.db
+.DS_Store
+
+# Archivos de prueba
+test_images/
+test_output/
+*.test
+
+# Archivos de backup
+*.bak
+*.backup
+
