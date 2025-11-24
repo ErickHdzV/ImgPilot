@@ -8,7 +8,7 @@ import numpy as np
 # Try to import rembg
 REM_BG_AVAILABLE = False
 try:
-    from rembg import remove
+    from rembg import remove, new_session
     REM_BG_AVAILABLE = True
 except ImportError:
     REM_BG_AVAILABLE = False
@@ -40,8 +40,12 @@ def remove_background(
         with open(image_path, 'rb') as input_file:
             input_data = input_file.read()
         
-        # Remove background
-        output_data = remove(input_data, model_name=model_name)
+        # Create session with the specified model
+        # Using explicit session to avoid conflicts with new_session() API
+        session = new_session(model_name)
+        
+        # Remove background using the session
+        output_data = remove(input_data, session=session)
         
         # Create output directory if it doesn't exist
         output_dir = Path(output_path).parent

@@ -112,28 +112,53 @@ class QualitySlider(ctk.CTkFrame):
 class ImageThumbnail(ctk.CTkFrame):
     """Component for displaying an image thumbnail in the gallery."""
     
-    def __init__(self, parent, image_path: str, on_click: Optional[Callable] = None, **kwargs):
+    def __init__(self, parent, image_path: str, on_click: Optional[Callable] = None, on_delete: Optional[Callable] = None, **kwargs):
         super().__init__(parent, **kwargs)
         self.image_path = image_path
         self.on_click = on_click
+        self.on_delete = on_delete
         self.is_selected = False
         self.current_photo = None
         
         # Configure style
         self.configure(cursor="hand2", corner_radius=8)
         
-        # Frame for the image
+        # Frame for the image with relative positioning for delete button
         self.image_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.image_frame.pack(fill="both", expand=True, padx=5, pady=5)
         
+        # Container for image and delete button
+        self.image_container = ctk.CTkFrame(self.image_frame, fg_color="transparent")
+        self.image_container.pack(fill="both", expand=True)
+        
         # Label for the image
         self.image_label = ctk.CTkLabel(
-            self.image_frame,
+            self.image_container,
             text="",
             width=120,
             height=120
         )
         self.image_label.pack(expand=True, fill="both")
+        
+        # Delete button (only show on hover)
+        self.delete_button = ctk.CTkButton(
+            self.image_container,
+            text="✕",
+            width=25,
+            height=25,
+            font=ctk.CTkFont(size=12, weight="bold"),
+            fg_color=("red", "darkred"),
+            hover_color=("darkred", "red"),
+            command=self._on_delete_click,
+            corner_radius=12,
+            cursor="hand2"
+        )
+        # Prevent click propagation
+        self.delete_button.bind("<Button-1>", lambda e: "break")
+        # Position delete button in top-right corner using place
+        self.delete_button.place(relx=1.0, rely=0.0, anchor="ne", x=-2, y=2)
+        self.delete_button.lower()  # Put it behind initially
+        self.delete_button_visible = False
         
         # Label for the filename
         filename = os.path.basename(image_path)
@@ -159,6 +184,18 @@ class ImageThumbnail(ctk.CTkFrame):
         # Hover effects
         self.bind("<Enter>", self._on_enter)
         self.bind("<Leave>", self._on_leave)
+        self.image_frame.bind("<Enter>", self._on_enter)
+        self.image_frame.bind("<Leave>", self._on_leave)
+        self.image_container.bind("<Enter>", self._on_enter)
+        self.image_container.bind("<Leave>", self._on_leave)
+    
+    def _on_delete_click(self, event=None):
+        """Handles delete button click."""
+        # Stop event propagation
+        if event:
+            event.stop = True
+        if self.on_delete:
+            self.on_delete(self.image_path)
     
     def _load_thumbnail(self):
         """Loads the image thumbnail."""
@@ -179,11 +216,19 @@ class ImageThumbnail(ctk.CTkFrame):
         """Hover effect on enter."""
         if not self.is_selected:
             self.configure(fg_color=("gray80", "gray30"))
+        # Show delete button on hover
+        if self.on_delete and not self.delete_button_visible:
+            self.delete_button.lift()
+            self.delete_button_visible = True
     
     def _on_leave(self, event):
         """Hover effect on leave."""
         if not self.is_selected:
             self.configure(fg_color=("gray90", "gray20"))
+        # Hide delete button when not hovering
+        if self.on_delete and self.delete_button_visible:
+            self.delete_button.lower()
+            self.delete_button_visible = False
     
     def set_selected(self, selected: bool):
         """Marks the thumbnail as selected."""

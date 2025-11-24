@@ -486,7 +486,8 @@ class MainWindow(ctk.CTkFrame if DND_AVAILABLE else ctk.CTk):
             thumbnail = ImageThumbnail(
                 self.gallery_scroll,
                 image_path,
-                on_click=lambda path, i=idx: self._select_image(i)
+                on_click=lambda path, i=idx: self._select_image(i),
+                on_delete=self._on_delete_image
             )
             thumbnail.pack(fill="x", padx=5, pady=5)
             self.thumbnail_widgets.append(thumbnail)
@@ -528,6 +529,35 @@ class MainWindow(ctk.CTkFrame if DND_AVAILABLE else ctk.CTk):
         """Updates visual selection in gallery."""
         for idx, thumbnail in enumerate(self.thumbnail_widgets):
             thumbnail.set_selected(idx == self.app_state.active_image_index)
+    
+    def _on_delete_image(self, image_path: str):
+        """Handles image deletion from gallery."""
+        # Remove from state
+        was_current = (image_path == self.app_state.current_preview_image)
+        removed = self.app_state.remove_image(image_path)
+        
+        if removed:
+            # Update gallery
+            self._update_gallery()
+            
+            # If we deleted the current image, update the view
+            if was_current:
+                if len(self.app_state.selected_images) > 0:
+                    # Select the image at the adjusted index
+                    if self.app_state.active_image_index < len(self.app_state.selected_images):
+                        self._select_image(self.app_state.active_image_index)
+                    else:
+                        # If index is out of bounds, select the last image
+                        self._select_image(len(self.app_state.selected_images) - 1)
+                else:
+                    # No images left, clear the view
+                    self.comparison_view.clear()
+                    # Show drop zone again
+                    if not self.drop_zone.winfo_viewable():
+                        self.drop_zone.pack(fill="both", expand=True, padx=10, pady=10)
+            else:
+                # Just update selection if needed
+                self._update_thumbnail_selection()
     
     def _on_select_images(self):
         """Handles image selection."""

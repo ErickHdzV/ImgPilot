@@ -73,4 +73,33 @@ class AppState:
         if 0 <= index < len(self.selected_images):
             self.active_image_index = index
             self.current_preview_image = self.selected_images[index]
+    
+    def remove_image(self, image_path: str):
+        """Removes an image from the selected list."""
+        if image_path in self.selected_images:
+            index = self.selected_images.index(image_path)
+            self.selected_images.remove(image_path)
+            
+            # Remove from optimized results if exists
+            if image_path in self.optimized_results:
+                del self.optimized_results[image_path]
+            
+            # Adjust active index if necessary
+            if len(self.selected_images) == 0:
+                self.current_preview_image = None
+                self.active_image_index = 0
+            elif self.active_image_index >= len(self.selected_images):
+                self.active_image_index = len(self.selected_images) - 1
+                self.current_preview_image = self.selected_images[self.active_image_index]
+            elif index <= self.active_image_index:
+                # If we removed an image before or at the current index, adjust
+                if self.active_image_index > 0:
+                    self.active_image_index -= 1
+                if len(self.selected_images) > 0:
+                    self.current_preview_image = self.selected_images[self.active_image_index]
+                else:
+                    self.current_preview_image = None
+            
+            return True
+        return False
 
