@@ -159,6 +159,7 @@ class ImageThumbnail(ctk.CTkFrame):
         self.delete_button.place(relx=1.0, rely=0.0, anchor="ne", x=-2, y=2)
         self.delete_button.lower()  # Put it behind initially
         self.delete_button_visible = False
+        self._hide_button_id = None  # Store after() call ID to cancel if needed
         
         # Label for the filename
         filename = os.path.basename(image_path)
@@ -188,6 +189,9 @@ class ImageThumbnail(ctk.CTkFrame):
         self.image_frame.bind("<Leave>", self._on_leave)
         self.image_container.bind("<Enter>", self._on_enter)
         self.image_container.bind("<Leave>", self._on_leave)
+        # Also bind hover events to delete button to keep it visible when hovering over it
+        self.delete_button.bind("<Enter>", self._on_enter)
+        self.delete_button.bind("<Leave>", self._on_leave)
     
     def _on_delete_click(self, event=None):
         """Handles delete button click."""
@@ -214,6 +218,11 @@ class ImageThumbnail(ctk.CTkFrame):
     
     def _on_enter(self, event):
         """Hover effect on enter."""
+        # Cancel any pending hide operation
+        if self._hide_button_id is not None:
+            self.after_cancel(self._hide_button_id)
+            self._hide_button_id = None
+        
         if not self.is_selected:
             self.configure(fg_color=("gray80", "gray30"))
         # Show delete button on hover
@@ -225,10 +234,40 @@ class ImageThumbnail(ctk.CTkFrame):
         """Hover effect on leave."""
         if not self.is_selected:
             self.configure(fg_color=("gray90", "gray20"))
-        # Hide delete button when not hovering
+        # Hide delete button with a small delay to allow mouse to move to button
+        # This prevents the button from disappearing when moving mouse to click it
         if self.on_delete and self.delete_button_visible:
+            # Cancel any previous hide operation
+            if self._hide_button_id is not None:
+                self.after_cancel(self._hide_button_id)
+            # Schedule hide after a short delay
+            self._hide_button_id = self.after(150, self._hide_delete_button)
+    
+    def _hide_delete_button(self):
+        """Actually hides the delete button."""
+        # Double-check mouse is not over component or button before hiding
+        x, y = self.winfo_pointerxy()
+        widget_under_mouse = self.winfo_containing(x, y)
+        
+        # If mouse is still over this component or delete button, don't hide
+        if widget_under_mouse:
+            # Check if it's this component or any of its children
+            current = widget_under_mouse
+            while current:
+                if current == self or current == self.delete_button:
+                    # Mouse is still over component or button, reschedule check
+                    self._hide_button_id = self.after(100, self._hide_delete_button)
+                    return
+                try:
+                    current = current.master
+                except:
+                    break
+        
+        # Mouse is really gone, hide the button
+        if self.delete_button_visible:
             self.delete_button.lower()
             self.delete_button_visible = False
+        self._hide_button_id = None
     
     def set_selected(self, selected: bool):
         """Marks the thumbnail as selected."""
