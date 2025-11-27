@@ -54,6 +54,50 @@ def get_presets_file() -> Path:
     """Returns the presets file path."""
     return get_config_dir() / PRESETS_FILENAME
 
+# Logo paths
+def get_logo_path(format: str = 'png', removebg: bool = False) -> Path:
+    """
+    Returns the path to the logo image.
+    Works both in development and in PyInstaller executable.
+    
+    Args:
+        format: Image format ('png', 'ico', 'jpg', 'webp', 'svg', 'avif')
+        removebg: If True, try to get the version without background
+    
+    Returns:
+        Path to the logo file
+    """
+    import sys
+    import os
+    
+    # Check if running as PyInstaller bundle
+    if getattr(sys, 'frozen', False):
+        # Running as compiled executable
+        base_path = Path(sys._MEIPASS)
+    else:
+        # Running as script
+        base_path = Path(__file__).parent
+    
+    logo_dir = base_path / 'image' / 'logo'
+    
+    # If removebg is requested and format is png, try removebg version first
+    if removebg and format == 'png':
+        removebg_path = logo_dir / 'ImgPilot-removebg.png'
+        if removebg_path.exists():
+            return removebg_path
+    
+    logo_path = logo_dir / f'ImgPilot.{format}'
+    
+    # If the requested format doesn't exist, try PNG as fallback
+    if not logo_path.exists() and format != 'png':
+        logo_path = logo_dir / 'ImgPilot.png'
+    
+    return logo_path
+
+def get_icon_path() -> Path:
+    """Returns the path to the .ico icon file."""
+    return get_logo_path('ico')
+
 # UI configuration
 TOOLBAR_HEIGHT = 50
 GALLERY_PANEL_WIDTH = 250

@@ -5,6 +5,13 @@ import os
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 
+# Try to import PIL for logo display
+try:
+    from PIL import Image, ImageTk
+    PIL_AVAILABLE = True
+except ImportError:
+    PIL_AVAILABLE = False
+
 # Try to import TkinterDnD for drag & drop from outside the application
 try:
     from tkinterdnd2 import TkinterDnD
@@ -92,6 +99,38 @@ class MainWindow(ctk.CTkFrame if DND_AVAILABLE else ctk.CTk):
         toolbar = ctk.CTkFrame(self, height=50, corner_radius=0)
         toolbar.pack(fill="x", padx=0, pady=0)
         toolbar.pack_propagate(False)
+        
+        # Logo
+        try:
+            from PIL import Image, ImageTk
+            # Try to use the version without background
+            logo_path = config.get_logo_path('png', removebg=True)
+            if not logo_path.exists():
+                logo_path = config.get_logo_path('png')
+            
+            if logo_path.exists():
+                # Load and resize logo
+                logo_img = Image.open(str(logo_path))
+                # Resize to fit toolbar (max height 40px)
+                logo_img.thumbnail((120, 40), Image.Resampling.LANCZOS)
+                self.logo_photo = ImageTk.PhotoImage(logo_img)
+                
+                logo_label = ctk.CTkLabel(
+                    toolbar,
+                    image=self.logo_photo,
+                    text="",
+                    width=120
+                )
+                logo_label.pack(side="left", padx=10, pady=5)
+        except Exception:
+            # If logo fails to load, show text instead
+            logo_label = ctk.CTkLabel(
+                toolbar,
+                text="ImgPilot",
+                font=ctk.CTkFont(size=16, weight="bold"),
+                width=120
+            )
+            logo_label.pack(side="left", padx=10, pady=5)
         
         # Theme toggle button
         self.theme_button = ctk.CTkButton(

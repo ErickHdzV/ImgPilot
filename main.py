@@ -52,6 +52,7 @@ except Exception:
 
 from gui.main_window import MainWindow
 import customtkinter as ctk
+import config
 
 # Try to import TkinterDnD for drag & drop from outside
 try:
@@ -60,6 +61,35 @@ try:
 except ImportError:
     DND_AVAILABLE = False
     TkinterDnD = None
+
+
+def set_window_icon(window):
+    """
+    Sets the window icon for both taskbar and window title bar.
+    Uses the PNG without background if available for better appearance.
+    """
+    try:
+        from PIL import Image, ImageTk
+        
+        # Try to use the removebg version first (better for taskbar)
+        icon_path = config.get_logo_path('png', removebg=True)
+        if not icon_path.exists():
+            icon_path = config.get_logo_path('png')
+        
+        if icon_path.exists():
+            # Load icon image
+            icon_img = Image.open(str(icon_path))
+            icon_photo = ImageTk.PhotoImage(icon_img)
+            # iconphoto(True) sets icon for all windows and taskbar
+            window.iconphoto(True, icon_photo)
+        
+        # Also set iconbitmap for .ico file (Windows compatibility)
+        ico_path = config.get_icon_path()
+        if ico_path.exists():
+            window.iconbitmap(str(ico_path))
+    except Exception:
+        # If icon fails to load, continue without it
+        pass
 
 
 def main():
@@ -96,6 +126,9 @@ def main():
             root.geometry("1400x900")
             root.minsize(1200, 700)
             
+            # Set window icon (for taskbar and window)
+            set_window_icon(root)
+            
             # Configure theme on root window as well
             # (although CustomTkinter will handle most of the theme)
             
@@ -107,6 +140,8 @@ def main():
         else:
             # Use normal method without drag & drop from outside
             app = MainWindow()
+            # Set window icon (for taskbar and window)
+            set_window_icon(app)
             app.mainloop()
     except KeyboardInterrupt:
         print("\nApplication interrupted by user.")
